@@ -9,6 +9,8 @@ import Aura from '@primeuix/themes/aura'
 import { definePreset } from '@primeuix/themes'
 import 'primeicons/primeicons.css'
 
+// PWA will be configured manually
+
 const app = createApp(App)
 
 // Create a blue/teal flavored preset based on Aura
@@ -41,3 +43,12 @@ app.use(PrimeVue, {
 })
 
 app.mount('#app')
+
+// Simple service worker registration for PWA
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(() => {
+        console.log('Service Worker registered for PWA functionality')
+    }).catch((error) => {
+        console.log('Service Worker registration failed:', error)
+    })
+}
