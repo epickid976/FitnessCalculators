@@ -5,6 +5,7 @@ import InputNumber from 'primevue/inputnumber'
 import FloatLabel from 'primevue/floatlabel'
 import Button from 'primevue/button'
 import Chart from 'primevue/chart'
+import 'chart.js/auto'
 
 
 const tdee = ref<number | null>(null)
@@ -77,9 +78,11 @@ async function calc() {
 </script>
 
 <template>
-  <main class="min-h-[100svh] grid place-items-center bg-slate-100 dark:bg-slate-900 p-6">
-    <div class="w-full max-w-md flex flex-col gap-8 rounded-2xl shadow-lg p-6
-                bg-white dark:bg-slate-800">
+  <main class="min-h-[100svh] flex justify-center bg-slate-100 dark:bg-slate-900 p-6">
+    <div class="w-full max-w-5xl flex flex-col gap-10">
+
+      <!-- Calculator Card -->
+      <div class="w-full max-w-md self-center rounded-2xl shadow-lg p-6 bg-white dark:bg-slate-800 flex flex-col gap-8">
 
       <!-- Title -->
       <header class="text-center space-y-2">
@@ -173,36 +176,50 @@ async function calc() {
       </section>
 
       <!-- Analytics Charts (at the bottom) -->
+      </div>
       <section class="space-y-6">
         <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">Analytics</h2>
         <div v-if="loadingAnalytics" class="text-slate-500">Loading analytics…</div>
-        <div v-else class="grid gap-8">
+        <div v-else class="grid gap-10">
           <!-- TDEE over time -->
-          <Chart type="line" :data="{
-            labels: recentTdee.map(r => new Date(r.createdAt).toLocaleString()),
-            datasets: [{ label: 'TDEE (kcal)', data: recentTdee.map(r => r.tdeeKcal), fill: false }]
-          }" />
+          <div class="w-full h-72 bg-white/50 dark:bg-slate-800/50 rounded-xl p-4">
+            <Chart type="line" :data="{
+              labels: recentTdee.map(r => new Date(r.createdAt).toLocaleString()),
+              datasets: [{ label: 'TDEE (kcal)', data: recentTdee.map(r => r.tdeeKcal), borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.3)', fill: false }]
+            }" :options="{ responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }" />
+            <div v-if="recentTdee.length === 0" class="text-center text-slate-500 mt-2">No TDEE data yet</div>
+          </div>
 
           <!-- TDEE sex distribution -->
-          <Chart type="pie" :data="{
-            labels: ['Male', 'Female'],
-            datasets: [{ data: [recentTdee.filter(r => r.sex === 0).length, recentTdee.filter(r => r.sex === 1).length] }]
-          }" />
+          <div class="w-full h-72 bg-white/50 dark:bg-slate-800/50 rounded-xl p-4">
+            <Chart type="pie" :data="{
+              labels: ['Male', 'Female'],
+              datasets: [{ data: [recentTdee.filter(r => r.sex === 0).length, recentTdee.filter(r => r.sex === 1).length], backgroundColor: ['#38bdf8', '#f87171'] }]
+            }" :options="{ responsive: true, maintainAspectRatio: false }" />
+            <div v-if="recentTdee.length === 0" class="text-center text-slate-500 mt-2">No TDEE data yet</div>
+          </div>
 
           <!-- 1RM over time -->
-          <Chart type="line" :data="{
-            labels: recentOrm.map(r => new Date(r.createdAt).toLocaleString()),
-            datasets: [{ label: '1RM', data: recentOrm.map(r => r.oneRm), fill: false }]
-          }" />
+          <div class="w-full h-72 bg-white/50 dark:bg-slate-800/50 rounded-xl p-4">
+            <Chart type="line" :data="{
+              labels: recentOrm.map(r => new Date(r.createdAt).toLocaleString()),
+              datasets: [{ label: '1RM', data: recentOrm.map(r => r.oneRm), borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.3)', fill: false }]
+            }" :options="{ responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }" />
+            <div v-if="recentOrm.length === 0" class="text-center text-slate-500 mt-2">No 1RM data yet</div>
+          </div>
 
           <!-- 1RM reps distribution -->
-          <Chart type="bar" :data="{
-            labels: [...new Set(recentOrm.map(r => r.reps))].sort((a,b)=>a-b),
-            datasets: [{
-              label: 'Count by reps',
-              data: [...new Set(recentOrm.map(r => r.reps))].sort((a,b)=>a-b).map(rep => recentOrm.filter(r => r.reps === rep).length)
-            }]
-          }" />
+          <div class="w-full h-72 bg-white/50 dark:bg-slate-800/50 rounded-xl p-4">
+            <Chart type="bar" :data="{
+              labels: [...new Set(recentOrm.map(r => r.reps))].sort((a,b)=>a-b),
+              datasets: [{
+                label: 'Count by reps',
+                backgroundColor: '#60a5fa',
+                data: [...new Set(recentOrm.map(r => r.reps))].sort((a,b)=>a-b).map(rep => recentOrm.filter(r => r.reps === rep).length)
+              }]
+            }" :options="{ responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, precision: 0 } } }" />
+            <div v-if="recentOrm.length === 0" class="text-center text-slate-500 mt-2">No 1RM data yet</div>
+          </div>
         </div>
       </section>
     </div>
